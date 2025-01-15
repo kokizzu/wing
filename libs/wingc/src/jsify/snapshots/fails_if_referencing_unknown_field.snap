@@ -1,5 +1,0 @@
----
-source: libs/wingc/src/jsify/tests.rs
----
-## Errors
-Unknown symbol "b" 3:13

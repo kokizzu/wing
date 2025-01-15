@@ -4,20 +4,20 @@ id: local
 keywords: [Wing Local, Wing testing, Wing Console installation, Wing Console usage, Wing Console setup]
 ---
 
-The **Wing Console** is a web application that provides an interface that can be used to view, explore, and interact with Wing applications as you develop them on the local machine.
+The **Wing Console** is a local web app to view, explore, and interact with Wing applications as you develop them on the local machine.
 
 ## Starting the Wing Console
 
 Use the `wing it` command to start the console with our newly created application:
 
 ```sh
-wing it hello.w
+wing it main.w
 ```
 
-This will now compile `hello.w` to [the "`sim`" target](../concepts/simulator),
+This will now compile `main.w` to [the "`sim`" target](../concepts/simulator),
 and load the application in the **Wing Console**.
 
-In the Wing Console window, you will see the following view of you application:
+In the Wing Console window, you will see the following view of your application:
 
 ![Wing Console desktop application view](./console-app.png 'Wing Console')
 

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "compile": {
+      "inputs": ["lib/**"],
+      "outputs": [".jsii"]
+    }
+  }
+}

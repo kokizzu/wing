@@ -6,12 +6,10 @@ on:
       - opened
       - synchronize
     paths-ignore:
-      - "docs/**"
       - "logo/**"
   push:
     branches:
       - main
-      - dev
   workflow_dispatch: {}
 
 concurrency:
@@ -19,18 +17,18 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  RUST_VERSION: "1.67.1"
-  NODE_VERSION: "18.16.0"
-  PNPM_VERSION: "8.6.3"
+  NODE_VERSION: "20.11.1"
+  PNPM_VERSION: "8.15.1"
   CARGO_TERM_COLOR: always
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  IS_SAME_REPO_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
 
 jobs:
   build:
     name: "Build"
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ fromJson(steps.changelog.outputs.data).newVersion }}
       last-version: ${{ fromJson(steps.changelog.outputs.data).lastVersion }}
@@ -41,29 +39,26 @@ jobs:
       bench-changed: ${{ fromJson(steps.turbo-diff.outputs.data)['hangar#bench'].changes }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: "pnpm"
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: moonrepo/setup-rust@v1
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-          targets: |
-            x86_64-unknown-linux-gnu
-            wasm32-wasi
-          components: rustfmt,clippy,rust-std
+          inherit-toolchain: true
+          cache: false
 
       - name: Setup Cargo Cache
         uses: Swatinem/rust-cache@v2
@@ -73,6 +68,11 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
       - name: Derive appropriate SHAs for base and head
         id: shas
@@ -94,38 +94,35 @@ jobs:
           SEGMENT_WRITE_KEY: ${{ secrets.SEGMENT_WRITE_KEY }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/*
 
   test:
     name: Test
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: "pnpm"
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: moonrepo/setup-rust@v1
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-          targets: |
-            x86_64-unknown-linux-gnu
-            wasm32-wasi
-          components: rustfmt,clippy,rust-std
+          inherit-toolchain: true
+          cache: false
 
       - name: Setup Cargo Cache
         uses: Swatinem/rust-cache@v2
@@ -134,8 +131,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright
-        working-directory: apps/wing-console/console/app
-        run: pnpm exec playwright install --with-deps
+        working-directory: wing-console/console/app
+        run: |
+          pnpm exec playwright install --with-deps
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Verify Terraform installation
+        run: terraform -v
 
       - name: Test
         run: pnpm test:ci
@@ -146,7 +152,7 @@ jobs:
 
       - name: Upload patch
         if: steps.diff.outputs.diff == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build.diff
           path: build.diff
@@ -154,26 +160,26 @@ jobs:
   benchmark:
     name: Benchmark
     if: needs.build.outputs.bench-changed == 'true' || contains(github.event.pull_request.labels.*.name, '🧪 pr/e2e-full')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Dist Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: "pnpm"
           node-version: ${{ env.NODE_VERSION }}
@@ -181,18 +187,26 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --ignore-scripts --frozen-lockfile --filter hangar --filter examples-valid --filter examples-invalid
 
-      - name: Run E2E Benchmarks
-        run: pnpm bench
+      - name: Run Baseline Benchmarks
         working-directory: tools/hangar
+        if: github.event_name == 'pull_request'
+        env:
+          HANGAR_WINGLANG_PACKAGE: "winglang@latest"
+        run: pnpm bench
+
+      - name: Run Benchmarks
+        env:
+          BENCH_FAIL_THRESHOLD_PERCENT: "25"
+          GITHUB_TOKEN: ${{ env.IS_SAME_REPO_PR == 'true' && secrets.PROJEN_GITHUB_TOKEN || secrets.GITHUB_TOKEN  }}
+          BENCH_PR: "${{ env.IS_SAME_REPO_PR == 'true' && github.event.pull_request.number || '' }}"
+        working-directory: tools/hangar
+        run: pnpm bench
 
       - name: Upload Report JSON
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: benchmarks
           path: tools/hangar/results/report.json
-
-      - name: Create Markdown report
-        run: scripts/benchmark_json_to_table.mjs
 
   e2e-test:
     name: "E2E / ${{ matrix.runner }} + Node${{ matrix.node }} [${{ matrix.shard }}]"
@@ -204,7 +218,7 @@ jobs:
       fail-fast: true
       matrix:
         runner: [windows, macos, ubuntu]
-        node: ["18", "20"]
+        node: ["20", "18"]
         shard: ["1/2", "2/2"]
         full_run:
           # Do a full run on push or when the PR is labeled "pr/e2e-full"
@@ -215,41 +229,43 @@ jobs:
           - runner: windows
             full_run: false
           - runner: ubuntu
-            node: "20"
+            node: "18"
             full_run: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: "pnpm"
           node-version: ${{ matrix.node }}
 
       - name: Download Dist Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts --filter hangar --filter examples-valid --filter examples-invalid
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts --filter hangar --filter examples-valid --filter examples-invalid
+          pnpm run compile --filter jsii-fixture
 
       - name: Run Hangar Tests
         working-directory: tools/hangar
         run: |
           pnpm test:generate
-          pnpm run test --shard=${{ matrix.shard }} --update=${{ matrix.runner == 'ubuntu' && matrix.node == '18' }}
+          pnpm run vitest --shard=${{ matrix.shard }} --update=${{ matrix.runner == 'ubuntu' && matrix.node == '20' }}
 
       - name: Create mutation if needed
         # we only care about the diff in our standard dev env
-        if: matrix.runner == 'ubuntu' && matrix.node == '18'
+        if: matrix.runner == 'ubuntu' && matrix.node == '20'
         id: diff
         env:
           RAW_SHARD: ${{ matrix.shard }}
@@ -258,15 +274,22 @@ jobs:
           scripts/create_patch.sh "e2e-$SHARD.diff"
 
       - name: Upload mutation
-        if: matrix.runner == 'ubuntu' && matrix.node == '18' && steps.diff.outputs.diff == 'true'
-        uses: actions/upload-artifact@v3
+        if: matrix.runner == 'ubuntu' && matrix.node == '20' && steps.diff.outputs.diff == 'true'
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.diff.outputs.diff_name }}
           path: ${{ steps.diff.outputs.diff_name }}
 
+  sdk-spec-test:
+    needs:
+      - build
+    if: github.event_name == 'push' && needs.build.outputs.e2e-changed == 'true'
+    uses: ./.github/workflows/sdk-spec-test.yml
+    secrets: inherit
+
   console-preview:
     name: "Console Preview"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - build
     env:
@@ -276,16 +299,16 @@ jobs:
     if: ${{ needs.build.outputs.console-changed == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.head_ref, 'mergify/merge-queue/') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Dist Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
       - name: Install flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@1.4
+        uses: superfly/flyctl-actions/setup-flyctl@1.5
         with:
           version: ${{ env.FLY_VERSION }}
 
@@ -293,39 +316,44 @@ jobs:
         id: deploy-fly
         run: |
           if ! flyctl status --app "$APP_NAME"; then
-            pushd ./apps/wing-console/console/app/preview
-            flyctl launch --no-deploy --copy-config --name "$APP_NAME" --image-label latest
+            pushd ./wing-console/console/app/preview
+            flyctl launch --no-deploy --copy-config --name "$APP_NAME" --image-label latest -o personal
             popd
           fi
-          flyctl deploy . --config ./apps/wing-console/console/app/preview/fly.toml --app "$APP_NAME" --image-label latest --vm-memory 512 --strategy immediate
+          flyctl deploy . --config ./wing-console/console/app/preview/fly.toml --app "$APP_NAME" --image-label latest --vm-memory 1024 --strategy immediate
           flyctl scale count 1 --yes --app "$APP_NAME"
           echo "deploytime=$(TZ=UTC date +'%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
-        
+
       - name: Post preview comment
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             Console preview environment is available at https://${{env.APP_NAME}}.fly.dev :rocket:
-            
-            *Updated (UTC): ${{steps.deploy-fly.outputs.deploytime }}*
+
+            ###### Last Updated (UTC) ${{steps.deploy-fly.outputs.deploytime }}
           comment_tag: Console preview environment
           GITHUB_TOKEN: ${{secrets.PROJEN_GITHUB_TOKEN}}
 
   quality-gate:
     name: Quality Gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ !cancelled() }}
     needs:
       - build
       - e2e-test
       - benchmark
       - test
+      - sdk-spec-test
     steps:
       - name: Check failure
-        if: needs.build.result == 'failure' || needs.e2e-test.result == 'failure' || needs.benchmark.result == 'failure' || needs.test.result == 'failure'
-        run: exit 1
+        # All jobs must either be sucessful or skipped
+        if: contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure') || contains(needs.*.result, 'action_required')|| contains(needs.*.result, 'stale')|| contains(needs.*.result, 'null')
+        run: |
+          echo "One or more jobs failed or were cancelled. Please check the logs."
+          echo '${{ toJson(needs) }}'
+          exit 1
       - name: Download patches
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Check patches
         run: |
           PATCH_COUNT=0
@@ -342,14 +370,14 @@ jobs:
 
   publish:
     name: Publish
-    if: ${{ github.event_name == 'push' && github.repository == 'winglang/wing' && github.ref == 'refs/heads/main' }}
+    if: ${{ !cancelled() && needs.quality-gate.result == 'success' && github.event_name == 'push' && github.repository == 'winglang/wing' && github.ref == 'refs/heads/main' }}
     needs:
       - quality-gate
       - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Tag commit
         uses: tvdias/github-tagger@v0.0.1
@@ -361,15 +389,36 @@ jobs:
       - name: Login to NPM registry
         run: npm set //registry.npmjs.org/:_authToken ${{ secrets.NPM_PUBLISH_TOKEN }}
 
-      - name: Publish npm packages
-        working-directory: dist
+      - name: Publish NPM packages
+        uses: nick-fields/retry@v3
         env:
           PACKAGE_VERSION: ${{ needs.build.outputs.version }}
-        run: |
-          PACKAGES=("winglang-sdk" "winglang-compiler" "wingconsole-design-system" "wingconsole-ui" "wingconsole-server" "wingconsole-app" "winglang")
-          for PACKAGE in "${PACKAGES[@]}"; do
-            npm publish "$PACKAGE-$PACKAGE_VERSION.tgz" --access public
-          done
+        with:
+          max_attempts: 7
+          timeout_minutes: 5
+          command: |
+            set -o pipefail
+
+            cd dist
+            PACKAGES=("@winglang/sdk" "@wingcloud/framework" "@winglang/compiler" "@wingconsole/design-system" "@wingconsole/ui" "@wingconsole/server" "@wingconsole/app" "winglang" "@winglang/platform-awscdk" "@winglang/compatibility-spy" "@winglang/wingtunnels")
+            for PACKAGE in "${PACKAGES[@]}"; do
+              # Check if already published
+              VERSION_FOUND=$(npm view "$PACKAGE@$PACKAGE_VERSION" version --verbose || true)
+              if [ "$VERSION_FOUND" = "$PACKAGE_VERSION" ]; then
+                echo "$PACKAGE@$PACKAGE_VERSION already published, skipping"
+                continue
+              fi
+
+              # remove "@" and replace "/" with "-"
+              TARBALL=$(echo "$PACKAGE-$PACKAGE_VERSION.tgz" | sed 's/@//g' | sed 's/\//-/g')
+
+              npm publish "$TARBALL" --access public --verbose
+
+              if [ $? -ne 0 ]; then
+                echo "Publishing $PACKAGE failed, exiting"
+                exit 1
+              fi
+            done
 
       - name: Publish Extension to Visual Studio Marketplace
         if: needs.build.outputs.vscode-wing-changed == 'true'
@@ -381,7 +430,7 @@ jobs:
           dependencies: false
 
       - name: Write Changelog
-        uses: DamianReeves/write-file-action@v1.2
+        uses: DamianReeves/write-file-action@v1.3
         with:
           path: "CHANGELOG.md"
           contents: ${{ needs.build.outputs.changelog }}

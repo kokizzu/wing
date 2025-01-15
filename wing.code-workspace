@@ -1,0 +1,77 @@
+{
+  "folders": [
+    {
+      "name": "Console App",
+      "path": "./wing-console/console/app"
+    },
+    {
+      "name": "Console Server",
+      "path": "./wing-console/console/server"
+    },
+    {
+      "name": "Console UI",
+      "path": "./wing-console/console/ui"
+    },
+    {
+      "name": "Compiler",
+      "path": "./packages/@winglang/compiler"
+    },
+    {
+      "name": "API Docs Generator",
+      "path": "./packages/@winglang/jsii-docgen"
+    },
+    {
+      "name": "ROOT",
+      "path": "./"
+    },
+    {
+      "name": "SDK",
+      "path": "./packages/@winglang/sdk"
+    },
+    {
+      "name": "Docs",
+      "path": "./docs/docs"
+    },
+    {
+      "name": "Tests: Error",
+      "path": "./tests/error"
+    },
+    {
+      "name": "Tests: Invalid",
+      "path": "./tests/invalid"
+    },
+    {
+      "name": "SDK Tests",
+      "path": "./tests/sdk_tests"
+    },
+    {
+      "name": "Tests: Valid",
+      "path": "./tests/valid"
+    },
+    {
+      "name": "Tests: Docs",
+      "path": "./tests/doc_examples"
+    },
+    {
+      "name": "VSCode",
+      "path": "./packages/vscode-wing"
+    },
+    {
+      "name": "API Checker",
+      "path": "./packages/wing-api-checker"
+    },
+    {
+      "name": "CLI",
+      "path": "./packages/winglang"
+    },
+    {
+      "name": "CLIv2",
+      "path": "./packages/wingcli-v2"
+    },
+    {
+      "name": "Tunnel Server",
+      "path": "./packages/@winglang/wingtunnels"
+    }
+  ],
+  "settings": {}
+}

@@ -94,14 +94,17 @@ export async function linkBundledTransitiveDeps(
       if (!(await fs.pathExists(dep.path))) {
         throw new Error(`pnpm dependency path not found: ${dep.path}`);
       }
+
+      // if the symlink exists but is broken, attempt to remove it
+      await fs
+        .stat(destModule)
+        .catch(() => fs.unlink(destModule).catch(() => {}));
+
       await fs.ensureSymlink(dep.path, destModule);
     }
   }
 
   const linkedKeys = Object.keys(depsToLink);
-  console.log(
-    `Linked ${linkedKeys.length} transitive bundled deps for:\t ${project.manifest.name}`
-  );
 
   await fs.writeJSON(
     path.join(project.dir, "node_modules", ".modulelinks"),

@@ -1,23 +1,31 @@
 import { execa } from "execa";
 import * as fs from "fs";
 import { expect } from "vitest";
-import { snapshotDir, wingBin } from "./paths";
+import { snapshotDir, testDir, wingBin } from "./paths";
 import { join, extname, relative, resolve, dirname, basename } from "path";
 
 export interface RunWingCommandOptions {
   cwd: string;
-  wingFile: string;
+  wingFile?: string;
   args: string[];
   expectFailure: boolean;
-  plugins?: string[];
+  platforms?: string[];
   env?: Record<string, string>;
 }
 
 export async function runWingCommand(options: RunWingCommandOptions) {
-  const plugins = options.plugins ? ["--plugins", ...options.plugins] : [];
+  const platformOptions: string[] = [];
+  options.platforms?.forEach((p) => platformOptions.push(...["-t", `${p}`])) ??
+    [];
   const out = await execa(
     wingBin,
-    ["--no-update-check", "--no-analytics", ...options.args, options.wingFile, ...plugins],
+    [
+      "--no-update-check",
+      "--no-analytics",
+      ...options.args,
+      options.wingFile ?? "",
+      ...platformOptions,
+    ],
     {
       cwd: options.cwd,
       reject: false,
@@ -38,13 +46,41 @@ export async function runWingCommand(options: RunWingCommandOptions) {
     }
   }
 
-  out.stderr = sanitizeOutput(out.stderr);
-  out.stdout = sanitizeOutput(out.stdout);
-  return out;
+  return {
+    stderr: sanitizeOutput(out.stderr),
+    stdout: sanitizeOutput(out.stdout),
+  };
 }
 
-function sanitizeOutput(output: string) {
-  return output.replace(/\d+m[\d.]+s/g, "<DURATION>");
+export function sanitizeOutput(output: string) {
+  return (
+    output
+      // Normalize line endings
+      .replaceAll("\r\n", "\n")
+      // Normalize windows slashes
+      .replace(/\\+([a-zA-Z0-9\.@]{1})/g, "/$1")
+      // Remove line/column numbers from rust sources
+      .replace(/(src\/.+\.rs):\d+:\d+/g, "$1:LINE:COL")
+      // Remove absolute stacktraces
+      .replace(/\(\/.+:\d+:\d+\)/g, "(<ABSOLUTE>:LINE:COL)")
+      // Remove absolute paths
+      .replace(/(?<=[\s"])(\/|\w:)\S+\/(\S+)/g, "<ABSOLUTE>/$2")
+      // remove references to random state files
+      .replace(/\/.state\/[^ '"]+/g, "/.state/<STATE_FILE>")
+      // Remove duration from test results
+      .replace(/Duration \d+m[\d.]+s/g, "Duration <DURATION>")
+      // Remove changing ports
+      .replace(/port \d+/g, "port <PORT>")
+      // Remove IP addresses with a port
+      .replace(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+/g, "<IP>:<PORT>")
+      // Remove timestamps
+      .replace(/\b\d{2}:\d{2}:\d{2}.\d{3}\b/g, "<TIMESTAMP>")
+      .replace(/\b\d{4}-\d{2}-\d{2}\b/g, "<TIMESTAMP>")
+      .replace(
+        /\b(?:(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)\w* )?(\d{1,2})(?:st|nd|th)?[,]? (?:(?:(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)\w*)?[,]? )?(\d{2,4})\b/g,
+        "<TIMESTAMP>"
+      )
+  );
 }
 
 export function sanitize_json_paths(path: string) {
@@ -63,6 +99,8 @@ export function sanitize_json_paths(path: string) {
     .replace(sourceHashRegex, '"${filemd5(<SOURCE>)}"');
   const finalObj = JSON.parse(sanitizedJsonText);
   delete finalObj.terraform;
+  // Remove cdktf version
+  delete finalObj["//"]["metadata"]["version"];
 
   return finalObj;
 }
@@ -78,15 +116,13 @@ export function tfResourcesOfCount(
   return Object.values(JSON.parse(templateStr).resource[resourceId]).length;
 }
 
-const testsRoot = join(__dirname, "..", "..", "..", "examples", "tests");
-
 export async function createMarkdownSnapshot(
   fileMap: Record<string, string>,
   filePath: string,
   testCase: string,
   target: string
 ) {
-  const relativePath = relative(resolve(testsRoot), filePath).replace(
+  const relativePath = relative(resolve(testDir), filePath).replace(
     /\\/g,
     "/"
   );
@@ -101,7 +137,7 @@ export async function createMarkdownSnapshot(
 
   const testDirRelativeToSnapshot = relative(
     dirname(snapPath),
-    testsRoot
+    testDir
   ).replace(/\\/g, "/");
 
   let md = `# [${wingFile}](${testDirRelativeToSnapshot}/${dirname(

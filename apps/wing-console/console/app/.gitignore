@@ -1,5 +1,0 @@
-/coverage
-/**/target/*.wsim/
-/**/target/*.wsim.*/
-/playwright-report/
-/test-results/

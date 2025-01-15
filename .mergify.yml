@@ -1,15 +1,13 @@
 # See https://doc.mergify.io
+merge_queue:
+  max_parallel_checks: 2
+
 queue_rules:
   - name: default
-    speculative_checks: 2
-    conditions:
-      - -files=.mergify.yml
-      - or:
-          - status-success=Quality Gate
-          - and:
-              - -files~=^(?!docs/|logo/)
-              # These files must be generated via wingsdk build
-              - -files~=^docs/docs/04-standard-library/[^/]+/[^/]+\.md$
+    merge_method: squash
+    commit_message_template: |-
+      {{ title }} (#{{ number }})
+      {{ body }}
 
 pull_request_rules:
   - name: automatic merge
@@ -19,29 +17,21 @@ pull_request_rules:
           Thanks for contributing, @{{author}}! This PR will now be added to the [merge queue](https://mergify.com/merge-queue), or immediately merged if `{{head}}` is up-to-date with `{{base}}` and the queue is empty.
       queue:
         name: default
-        method: squash
-        commit_message_template: |-
-          {{ title }} (#{{ number }})
-          {{ body }}
     conditions:
       - -files=.mergify.yml
       - -title~=(?i)wip
       - -label~=(🚧 pr/do-not-merge|⚠️ pr/review-mutation)
       - -merged
       - -closed
+      - -draft
       - branch-protection-review-decision=APPROVED
       - "#approved-reviews-by>=1"
       - "#changes-requested-reviews-by=0"
       - "#review-threads-unresolved=0"
       - -approved-reviews-by~=author
       - check-success=Validate PR title
+      - check-success=Quality Gate
       - base=main
-      - or:
-          - check-success=Quality Gate
-          - and:
-              - -files~=^(?!docs/|logo/)
-              # These files must be generated via wingsdk build
-              - -files~=^docs/docs/04-standard-library/[^/]+/[^/]+\.md$
 
   - name: requires manual merge
     conditions:
@@ -50,6 +40,7 @@ pull_request_rules:
       - -label~=(🚧 pr/do-not-merge|⚠️ pr/review-mutation|⚠️ mergify/review-config)
       - -merged
       - -closed
+      - -draft
       - "#approved-reviews-by>=1"
       - "#changes-requested-reviews-by=0"
       - "#review-threads-unresolved=0"

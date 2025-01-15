@@ -1,4 +1,7 @@
+.DS_Store
 node_modules/
+
+.pnpm-store/
 
 # Terraform state files
 *.tfstate
@@ -26,3 +29,5 @@ target/
 
 # turbo
 .turbo/
+
+.history/

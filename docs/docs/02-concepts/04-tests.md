@@ -11,7 +11,7 @@ Winglang incorporates a lightweight testing framework, which is built around the
 
 You can create a test by adding the following code structure to any Winglang file (.w):
 
-```ts wing
+```ts wing example
 test "<test-name>" {
   // test code
 }
@@ -21,7 +21,7 @@ If a test throws an exception (typically using the `assert` function), it's cons
 
 Here's an example:
 
-```ts playground
+```ts playground example
 // example.w
 bring math;
 
@@ -50,7 +50,7 @@ Duration 0m0.54s
 
 Every Winglang test is executed in complete isolation. Take a look at the following code:
 
-```ts playground
+```ts playground example
 bring cloud;
 
 let b = new cloud.Bucket();
@@ -69,11 +69,11 @@ test "bucket starts empty" {
 
 In the first test (`bucket list should include created file`), a file is created in the bucket. The second test (`bucket starts empty`) verifies that the bucket is initialized without any file.
 
-### Running tests in a the cloud
+### Running tests in the cloud
 
 Consider the following example:
 
-```ts playground
+```ts playground example
 bring cloud;
 bring util;
 
@@ -140,7 +140,7 @@ Wing Console provides a straightforward method to run either a single test or al
 
 Consider the following code:
 
-```ts playground
+```ts playground example{valid: false}
 // example.w
 bring cloud;
 
@@ -158,9 +158,17 @@ test "bucket starts empty" {
 }
 
 test "this test should fail" {
-  throw("test throws an exception fails");
+  throw "test throws an exception fails";
 }
 ```
 
 Refer to the TESTS section in the image below. You have the option to run all tests or a single test.
 ![image](https://github.com/winglang/wing/assets/1727147/7d5ebc00-9316-41d1-9a3c-0e28e195d077)
+
+### Saving test output to a file
+
+To save test output to a file, add the relative path to the file to the `-o` or `--output-file` option. The format is inferred by the extension, only .json is supported at the moment.
+
+For example:
+`wing test -t sim -o out.json /test/file.test.w`
+`wing test -t sim --output-file path/to/out.json /test/file.test.w`

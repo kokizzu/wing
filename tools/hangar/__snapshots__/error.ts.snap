@@ -1,224 +1,291 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`bool_from_json.w 1`] = `
-"ERROR: unable to parse number 123 as a boolean
+exports[`bool_from_json.test.w 1`] = `
+"Error: unable to parse bool:
+- bool must be boolean
+  --> ../../../tests/error/bool_from_json.test.w:5:15
+  | // If it is run with other tests, subsequent failures will be ignored in snapshot.
+  | let j = Json { a: 123 };
+  | 
+5 | let a: bool = bool.fromJson(j.get("a"));
+  |               ^
+at <ABSOLUTE>/bool_from_json.test.w:5:15
 
-../../../examples/tests/error/target/test/bool_from_json.wsim.[REDACTED].tmp/.wing/preflight.js:9
-       super(scope, id);
-       const j = ({\\"a\\": 123});
->>     const a = (std.Boolean.fromJson((j)[\\"a\\"]));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`num_from_str.w 1`] = `
-"ERROR: unable to parse \\"123a\\" as a number
+exports[`fail_to_start_simulator.test.w 1`] = `
+"[ERROR] dep_on_failing_resource | Error: Failed to start container: Command "docker pull" exited with non-zero code 1 (see verbose logs)
+[ERROR] dep_on_failing_resource | Error: Unable to resolve attribute 'host_port' for resource "root/Default/Container" referenced by "root/Default/test:dep_on_failing_resource/Handler"
+[ERROR] dep_on_failing_resource | Error: Unable to resolve attribute 'host_port' for resource "root/Default/Container" referenced by "root/Default/test:dep_on_failing_resource/Handler"
+Failed to start resources: "root/Default/test:dep_on_failing_resource/Handler", "root/cloud.TestRunner"
 
-../../../examples/tests/error/target/test/num_from_str.wsim.[REDACTED].tmp/.wing/preflight.js:8
-     constructor(scope, id) {
-       super(scope, id);
->>     const a = ((args) => { if (isNaN(args)) {throw new Error(\\"unable to parse /\\"\\" + args + \\"/\\" as a number\\")}; return parseInt(args) })(\\"123a\\");
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`number_from_json.w 1`] = `
-"ERROR: unable to parse string apples as a number
+exports[`inflight_stacktraces.test.w 1`] = `
+"fail ┌ inflight_stacktraces.test.wsim » root/Default/test:assert              
+     │ Error: assertion failed: false
+     │   --> ../../../tests/error/inflight_stacktraces.test.w:7:3
+     │   | let bucket = new cloud.Bucket();
+     │   | 
+     │   | test "assert" {
+     │ 7 |   assert(false);
+     │   |   ^
+     └ at <ABSOLUTE>/inflight_stacktraces.test.w:7:3
+fail ┌ inflight_stacktraces.test.wsim » root/Default/test:assert with message 
+     │ Error: assertion failed: x is false
+     │    --> ../../../tests/error/inflight_stacktraces.test.w:27:3
+     │    | 
+     │    | test "assert with message" {
+     │    |   let x = false;
+     │ 27 |   assert(x, "x is false");
+     │    |   ^
+     └ at <ABSOLUTE>/inflight_stacktraces.test.w:27:3
+fail ┌ inflight_stacktraces.test.wsim » root/Default/test:bucket failed delete
+     │ Error: Object does not exist (key=doesn't exist).
+     │    --> ../../../tests/error/inflight_stacktraces.test.w:15:3
+     │    | }
+     │    | 
+     │    | test "bucket failed delete" {
+     │ 15 |   bucket.delete("doesn't exist", mustExist: true);
+     │    |   ^
+     └ at <ABSOLUTE>/inflight_stacktraces.test.w:15:3
+fail ┌ inflight_stacktraces.test.wsim » root/Default/test:expect.equal        
+     │ Error: AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+     │ 
+     │ 1 !== 2
+     │ 
+     │    --> ../../../tests/error/inflight_stacktraces.test.w:11:3
+     │    | }
+     │    | 
+     │    | test "expect.equal" {
+     │ 11 |   expect.equal(1,2 );
+     │    |   ^
+     └ at <ABSOLUTE>/inflight_stacktraces.test.w:11:3
+fail ┌ inflight_stacktraces.test.wsim » root/Default/test:throw from closure  
+     │ Error: ouch
+     │    --> ../../../tests/error/inflight_stacktraces.test.w:20:5
+     │    | 
+     │    | test "throw from closure" {
+     │    |   let closure = inflight () => {
+     │ 20 |     throw "ouch";
+     │    |     ^
+     │ at closure <ABSOLUTE>/inflight_stacktraces.test.w:20:5
+     └ at <ABSOLUTE>/inflight_stacktraces.test.w:22:3
 
-../../../examples/tests/error/target/test/number_from_json.wsim.[REDACTED].tmp/.wing/preflight.js:9
-       super(scope, id);
-       const j = ({\\"a\\": \\"apples\\"});
->>     const a = ((args) => { if (typeof args !== \\"number\\") {throw new Error(\\"unable to parse \\" + typeof args + \\" \\" + args + \\" as a number\\")}; return JSON.parse(JSON.stringify(args)) })((j)[\\"a\\"]);
-     }
-   }
-
- 
- 
-Tests 1 failed (1)
+Tests 5 failed (5)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`repeat_construct_id.w 1`] = `
-"ERROR: There is already a Construct with name 'cloud.Bucket' in $Root [env0]
+exports[`invalid-token.test.w 1`] = `
+"[ERROR] test cannot access unresolved token | Error: Unable to resolve attribute 'fake-attr' for resource "root/Default/MyResource/Resource" referenced by "root/Default/test:test cannot access unresolved token/Handler"
+[ERROR] test cannot access unresolved token | Error: Unable to resolve attribute 'fake-attr' for resource "root/Default/MyResource/Resource" referenced by "root/Default/test:test cannot access unresolved token/Handler"
+Failed to start resources: "root/Default/test:test cannot access unresolved token/Handler", "root/cloud.TestRunner"
+
+Tests 1 failed (1)
+Snapshots 1 skipped
+Test Files 1 failed (1)
+Duration <DURATION>"
+`;
+
+exports[`num_from_str.test.w 1`] = `
+"Error: unable to parse "123a" as a number
+  --> ../../../tests/error/num_from_str.test.w:3:14
+  | // Note that this test has to be alone because it needs to compile successfully and fail at preflight.
+  | // If it is run with other tests, subsequent failures will be ignored in snapshot.
+3 | let a: num = num.fromStr("123a");
+  |              ^
+at <ABSOLUTE>/num_from_str.test.w:3:14
+
+Tests 1 failed (1)
+Snapshots 1 skipped
+Test Files 1 failed (1)
+Duration <DURATION>"
+`;
+
+exports[`number_from_json.test.w 1`] = `
+"Error: unable to parse num:
+- num must be number
+  --> ../../../tests/error/number_from_json.test.w:5:14
+  | // If it is run with other tests, subsequent failures will be ignored in snapshot.
+  | let j = Json { a: "apples" };
+  | 
+5 | let a: num = num.fromJson(j.get("a"));
+  |              ^
+at <ABSOLUTE>/number_from_json.test.w:5:14
+
+Tests 1 failed (1)
+Snapshots 1 skipped
+Test Files 1 failed (1)
+Duration <DURATION>"
+`;
+
+exports[`repeat_construct_id.test.w 1`] = `
+"Error: There is already a Construct with name 'Bucket' in $Root [Default]
 
 hint: Every preflight object needs a unique identifier within its scope. You can assign one as shown:
 
-> new cloud.Bucket() as \\"MyBucket\\";
+> new cloud.Bucket() as "MyBucket";
 
-For more information, see https://www.winglang.io/docs/language-guide/language-reference#33-preflight-classes
+For more information, see https://www.winglang.io/docs/concepts/application-tree
+  --> ../../../tests/error/repeat_construct_id.test.w:4:15
+  | bring cloud;
+  | 
+  | let bucket1 = new cloud.Bucket();
+4 | let bucket2 = new cloud.Bucket();
+  |               ^
+at <ABSOLUTE>/repeat_construct_id.test.w:4:15
 
-../../../examples/tests/error/target/test/repeat_construct_id.wsim.[REDACTED].tmp/.wing/preflight.js:10
-       super(scope, id);
-       const bucket1 = this.node.root.newAbstract(\\"@winglang/sdk.cloud.Bucket\\",this,\\"cloud.Bucket\\");
->>     const bucket2 = this.node.root.newAbstract(\\"@winglang/sdk.cloud.Bucket\\",this,\\"cloud.Bucket\\");
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`repeat_construct_id2.w 1`] = `
-"ERROR: There is already a Construct with name 'bucket-name' in $Root [env0]
+exports[`repeat_construct_id2.test.w 1`] = `
+"Error: There is already a Construct with name 'bucket-name' in $Root [Default]
 
 hint: Every preflight object needs a unique identifier within its scope. You can assign one as shown:
 
-> new cloud.Bucket() as \\"MyBucket\\";
+> new cloud.Bucket() as "MyBucket";
 
-For more information, see https://www.winglang.io/docs/language-guide/language-reference#33-preflight-classes
+For more information, see https://www.winglang.io/docs/concepts/application-tree
+  --> ../../../tests/error/repeat_construct_id2.test.w:8:15
+  | };
+  | 
+  | let bucket1 = new cloud.Bucket() as "{make_name()}";
+8 | let bucket2 = new cloud.Bucket() as "{make_name()}";
+  |               ^
+at <ABSOLUTE>/repeat_construct_id2.test.w:8:15
 
-../../../examples/tests/error/target/test/repeat_construct_id2.wsim.[REDACTED].tmp/.wing/preflight.js:13
-       });
-       const bucket1 = this.node.root.newAbstract(\\"@winglang/sdk.cloud.Bucket\\",this,String.raw({ raw: [\\"\\", \\"\\"] }, (make_name())));
->>     const bucket2 = this.node.root.newAbstract(\\"@winglang/sdk.cloud.Bucket\\",this,String.raw({ raw: [\\"\\", \\"\\"] }, (make_name())));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`string_from_json.w 1`] = `
-"ERROR: unable to parse number 123 as a string
+exports[`string_from_json.test.w 1`] = `
+"Error: unable to parse string:
+- string must be string
+  --> ../../../tests/error/string_from_json.test.w:5:14
+  | // If it is run with other tests, subsequent failures will be ignored in snapshot.
+  | let j = Json { a: 123 };
+  | 
+5 | let a: str = str.fromJson(j.get("a"));
+  |              ^
+at <ABSOLUTE>/string_from_json.test.w:5:14
 
-../../../examples/tests/error/target/test/string_from_json.wsim.[REDACTED].tmp/.wing/preflight.js:9
-       super(scope, id);
-       const j = ({\\"a\\": 123});
->>     const a = ((args) => { if (typeof args !== \\"string\\") {throw new Error(\\"unable to parse \\" + typeof args + \\" \\" + args + \\" as a string\\")}; return JSON.parse(JSON.stringify(args)) })((j)[\\"a\\"]);
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`struct_from_json_1.w 1`] = `
-"ERROR: unable to parse Person:
-- instance.age is not of a type(s) number
+exports[`struct_from_json_1.test.w 1`] = `
+"Error: unable to parse Person:
+- Person/age must be number
+   --> ../../../tests/error/struct_from_json_1.test.w:11:1
+   | 
+   | let j = {name: "cool", age: "not a number"};
+   | 
+11 | Person.fromJson(j);
+   | ^
+at <ABSOLUTE>/struct_from_json_1.test.w:11:1
 
-../../../examples/tests/error/target/test/struct_from_json_1.wsim.[REDACTED].tmp/.wing/preflight.js:10
-       const Person = require(\\"./Person.Struct.js\\")($stdlib.std.Struct);
-       const j = ({\\"name\\": \\"cool\\",\\"age\\": \\"not a number\\"});
->>     (Person.fromJson(j));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`struct_from_json_2.w 1`] = `
-"ERROR: unable to parse Student:
-- instance.age is not of a type(s) number
-- instance requires property \\"advisor\\"
+exports[`struct_from_json_2.test.w 1`] = `
+"Error: unable to parse Student:
+- Student must have required property 'advisor'
+- Student/age must be number
+   --> ../../../tests/error/struct_from_json_2.test.w:22:1
+   |   age: "not a number"
+   | };
+   | 
+22 | Student.fromJson(missingAdvisor);
+   | ^
+at <ABSOLUTE>/struct_from_json_2.test.w:22:1
 
-../../../examples/tests/error/target/test/struct_from_json_2.wsim.[REDACTED].tmp/.wing/preflight.js:12
-       const Student = require(\\"./Student.Struct.js\\")($stdlib.std.Struct);
-       const missingAdvisor = ({\\"name\\": \\"cool\\",\\"age\\": \\"not a number\\"});
->>     (Student.fromJson(missingAdvisor));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`struct_from_json_3.w 1`] = `
-"ERROR: unable to parse Student:
-- instance.age is not of a type(s) number
-- instance.advisors[1].id is not of a type(s) string
+exports[`struct_from_json_3.test.w 1`] = `
+"Error: unable to parse Student:
+- Student/advisors/1/id must be string
+- Student/age must be number
+   --> ../../../tests/error/struct_from_json_3.test.w:26:1
+   |   ]
+   | };
+   | 
+26 | Student.fromJson(invalidAdvisorInArray);
+   | ^
+at <ABSOLUTE>/struct_from_json_3.test.w:26:1
 
-../../../examples/tests/error/target/test/struct_from_json_3.wsim.[REDACTED].tmp/.wing/preflight.js:12
-       const Student = require(\\"./Student.Struct.js\\")($stdlib.std.Struct);
-       const invalidAdvisorInArray = ({\\"name\\": \\"cool\\",\\"age\\": \\"not a number\\",\\"advisors\\": [({\\"id\\": \\"advisor1\\",\\"name\\": \\"Bob\\",\\"age\\": 34}), ({\\"id\\": 10,\\"name\\": \\"Jacob\\",\\"age\\": 45})]});
->>     (Student.fromJson(invalidAdvisorInArray));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`struct_from_json_4.w 1`] = `
-"ERROR: unable to parse Student:
-- instance.advisors contains duplicate item
+exports[`struct_from_json_4.test.w 1`] = `
+"Error: unable to parse Student:
+- Student/advisors must NOT have duplicate items (items ## 0 and 1 are identical)
+   --> ../../../tests/error/struct_from_json_4.test.w:27:1
+   |   ]
+   | };
+   | 
+27 | Student.fromJson(invalidAdvisorInArray);
+   | ^
+at <ABSOLUTE>/struct_from_json_4.test.w:27:1
 
-../../../examples/tests/error/target/test/struct_from_json_4.wsim.[REDACTED].tmp/.wing/preflight.js:12
-       const Student = require(\\"./Student.Struct.js\\")($stdlib.std.Struct);
-       const invalidAdvisorInArray = ({\\"name\\": \\"cool\\",\\"age\\": 22,\\"advisors\\": [({\\"id\\": \\"advisor1\\",\\"name\\": \\"Bob\\",\\"age\\": 34}), ({\\"id\\": \\"advisor1\\",\\"name\\": \\"Bob\\",\\"age\\": 34})]});
->>     (Student.fromJson(invalidAdvisorInArray));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`struct_from_json_5.w 1`] = `
-"ERROR: unable to parse Foo:
-- instance.names.c is not of a type(s) string
+exports[`struct_from_json_5.test.w 1`] = `
+"Error: unable to parse Foo:
+- Foo/names/c must be string
+   --> ../../../tests/error/struct_from_json_5.test.w:16:1
+   |   }
+   | };
+   | 
+16 | Foo.fromJson(jFoo);
+   | ^
+at <ABSOLUTE>/struct_from_json_5.test.w:16:1
 
-../../../examples/tests/error/target/test/struct_from_json_5.wsim.[REDACTED].tmp/.wing/preflight.js:10
-       const Foo = require(\\"./Foo.Struct.js\\")($stdlib.std.Struct);
-       const jFoo = ({\\"names\\": ({\\"a\\": \\"Amanda\\",\\"b\\": \\"Barry\\",\\"c\\": 10})});
->>     (Foo.fromJson(jFoo));
-     }
-   }
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;
 
-exports[`utilities.w 1`] = `
-"ERROR: assertion failed: false
+exports[`utilities.test.w 1`] = `
+"Error: assertion failed: false
+  --> ../../../tests/error/utilities.test.w:1:1
+1 | assert(false);
+  | ^
+at <ABSOLUTE>/utilities.test.w:1:1
 
-../../../examples/tests/error/target/test/utilities.wsim.[REDACTED].tmp/.wing/preflight.js:8
-     constructor(scope, id) {
-       super(scope, id);
->>     {((cond) => {if (!cond) throw new Error(\\"assertion failed: false\\")})(false)};
-       {console.log(\\"W\\")};
-       throw new Error(\\"me\\");
-
- 
- 
 Tests 1 failed (1)
+Snapshots 1 skipped
 Test Files 1 failed (1)
 Duration <DURATION>"
 `;

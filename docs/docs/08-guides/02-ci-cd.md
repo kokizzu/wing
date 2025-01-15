@@ -1,14 +1,22 @@
 ---
 title: CI/CD
 id: ci-cd
-keywords: [CICD, Continuous Integration, Continuous Deployment, Deployment, GitHub Actions]
+keywords:
+  [
+    CICD,
+    Continuous Integration,
+    Continuous Deployment,
+    Deployment,
+    GitHub Actions,
+  ]
 ---
 
-Wing supports compilation to various targets including `tf-aws`, `tf-azure`, `tf-gcp`, and `awscdk`. After compilation, Wing does not impose a specific deployment method for your infrastructure. Its Terraform target compatibility ensures that nearly all existing services can be utilized for deployment, offering considerable flexibility to choose the approach best aligned with your organizational needs or preferences.
+Wing supports compilation to various targets including `tf-aws`, `tf-azure`, and `tf-gcp`. After compilation, Wing does not impose a specific deployment method for your infrastructure. Its Terraform target compatibility ensures that nearly all existing services can be utilized for deployment, offering considerable flexibility to choose the approach best aligned with your organizational needs or preferences.
 
 This guide will detail the complete deployment lifecycle of a Wing application using GitHub Actions and the `tf-aws` target.
 
 ## Setup
+
 ### Managing Access for GitHub Actions and AWS
 
 It's generally discouraged to use static, long-lived IAM user credentials due to associated security risks.
@@ -53,30 +61,30 @@ concurrency:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  contents: read # This is required for actions/checkout
 
 env:
-  AWS_REGION: 'us-east-1'
-  TF_BACKEND_BUCKET: 'my-terraform-state-bucket-with-a-globally-unique-name'
-  TF_BACKEND_BUCKET_REGION: 'us-east-1'
+  AWS_REGION: "us-east-1"
+  TF_BACKEND_BUCKET: "my-terraform-state-bucket-with-a-globally-unique-name"
+  TF_BACKEND_BUCKET_REGION: "us-east-1"
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: gh-actions-winglang # makes it easy to identify, e.g. in AWS Cloudtrail
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy Winglang App
-        uses: winglang/wing-github-action/actions/deploy@v0.1.0
+        uses: winglang/wing-github-action/actions/deploy@main
         with:
           entry: main.w
-          target: 'tf-aws'
+          target: "tf-aws"
 ```
 
 ### Pull Request Diffs
@@ -88,33 +96,34 @@ on: [pull_request]
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  contents: read # This is required for actions/checkout
   pull-requests: write # This is required for commenting on PRs
 
 env:
-  AWS_REGION: 'us-east-1'
-  TF_BACKEND_BUCKET: 'my-terraform-state-bucket-with-a-globally-unique-name'
-  TF_BACKEND_BUCKET_REGION: 'us-east-1'
+  AWS_REGION: "us-east-1"
+  TF_BACKEND_BUCKET: "my-terraform-state-bucket-with-a-globally-unique-name"
+  TF_BACKEND_BUCKET_REGION: "us-east-1"
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: gh-actions-winglang
           aws-region: ${{ env.AWS_REGION }}
       - name: Terraform Plan
-        uses: winglang/wing-github-action/actions/pull-request-diff@v0.1.0
+        uses: winglang/wing-github-action/actions/pull-request-diff@main
         with:
           entry: main.w
-          target: 'tf-aws'
+          target: "tf-aws"
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
 ## Custom GitHub Actions Workflow for AWS
 
 Most users will find using the Wing GitHub Action within GitHub Actions as the simplest and most effective method. However, if you have specific requirements such as additional build steps, you may need to create your own custom GitHub Actions Workflow.
@@ -123,24 +132,26 @@ Most users will find using the Wing GitHub Action within GitHub Actions as the s
 
 Refer to the following Github Action workflow as a template to define your customized workflow. For detailed instructions, please refer to the Github Actions [documentation](https://docs.github.com/en/actions).
 
-#### Backend Plugin
+#### Backend Platform
 
-Add the following file to your application root directory as `plugin.s3-backend.js`. This will be used in the Github Action workflow during the `wing compile` step. Learn more about this in the [Terraform Backend guide](./01-terraform-backend.md)
+Add the following file to your application root directory as `platform.s3-backend.js`. This will be used in the Github Action workflow during the `wing compile` step. Learn more about this in the [Terraform Backend guide](./01-terraform-backend.md)
 
 ```
-// plugin.s3-backend.js
-exports.postSynth = function(config) {
-  if (!process.env.TF_BACKEND_BUCKET) {throw new Error("env var TF_BACKEND_BUCKET not set")}
-  if (!process.env.TF_BACKEND_BUCKET_REGION) {throw new Error("env var TF_BACKEND_BUCKET_REGION not set")}
-  if (!process.env.TF_BACKEND_STATE_FILE) {throw new Error("env var TF_BACKEND_STATE_FILE not set")}
-  config.terraform.backend = {
-    s3: {
-      bucket: process.env.TF_BACKEND_BUCKET,
-      region: process.env.TF_BACKEND_BUCKET_REGION,
-      key: process.env.TF_BACKEND_STATE_FILE
+// platform.s3-backend.js
+exports.Platform = class TFBackend {
+  postSynth(config) {
+    if (!process.env.TF_BACKEND_BUCKET) {throw new Error("env var TF_BACKEND_BUCKET not set")}
+    if (!process.env.TF_BACKEND_BUCKET_REGION) {throw new Error("env var TF_BACKEND_BUCKET_REGION not set")}
+    if (!process.env.TF_BACKEND_STATE_FILE) {throw new Error("env var TF_BACKEND_STATE_FILE not set")}
+    config.terraform.backend = {
+      s3: {
+        bucket: process.env.TF_BACKEND_BUCKET,
+        region: process.env.TF_BACKEND_BUCKET_REGION,
+        key: process.env.TF_BACKEND_STATE_FILE
+      }
     }
+    return config;
   }
-  return config;
 }
 ```
 
@@ -149,7 +160,7 @@ exports.postSynth = function(config) {
 This workflow:
 
 - Checks out the code.
-- Installs Node.js v18.
+- Installs Node.js v20.
 - Installs the winglang CLI with the latest version.
 - Installs npm dependencies (this step can be skipped if not necessary).
 - Retrieves short-lived credentials for AWS via OIDC.
@@ -181,7 +192,7 @@ permissions:
 
 env:
   AWS_REGION: "us-east-1"
-  # The following values are used in the backend plugin which
+  # The following values are used in the backend platform which
   # is used in the `wing compile` step
   TF_BACKEND_BUCKET: "my-terraform-state-bucket-with-a-globally-unique-name"
   TF_BACKEND_BUCKET_REGION: "us-east-1"
@@ -189,10 +200,10 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Node.js v18
         uses: actions/setup-node@v3
         with:
@@ -202,9 +213,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Compile
-        run: wing compile -t tf-aws --plugins=plugin.s3-backend.js main.w
+        run: wing compile -t tf-aws -t platform.s3-backend.js main.w
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: gh-actions-winglang-website-proxy
@@ -228,7 +239,7 @@ Consider adding Winglang simulator tests as an intermediate step in your workflo
       - name: Run Tests
         run: wing test main.w
       - name: Compile
-        run: wing compile -t tf-aws --plugins=plugin.s3-backend.js main.w
+        run: wing compile -t tf-aws -t platform.s3-backend.js main.w
 # ...
 ```
 
@@ -241,7 +252,7 @@ Consider integrating third-party Terraform analysis tools for more comprehensive
       - name: Install Dependencies
         run: npm ci
       - name: Compile
-        run: wing compile -t tf-aws --plugins=plugin.s3-backend.js main.w
+        run: wing compile -t tf-aws -t platform.s3-backend.js main.w
       - name: Check Terraform Config
         run: cd ./target/main.tfaws && your-tf-tool
 # ...

@@ -11,7 +11,8 @@
     "tools/bump-pack/**",
     "!tools/bump-pack/node_modules/**"
   ],
-  "pipeline": {
+  "ui": "stream",
+  "tasks": {
     "default": {
       "inputs": ["*.json", ".projenrc.ts"]
     },
@@ -27,7 +28,9 @@
         "*.lock",
         "src/**/*.rs",
         "!src/**/*.test.ts",
-        "src/**/*.ts"
+        "!src/**/*.test.tsx",
+        "src/**/*.ts",
+        "src/**/*.tsx"
       ]
     },
     "test": {
@@ -41,10 +44,29 @@
         "*.lock",
         "src/**/*.rs",
         "src/**/*.ts",
+        "src/**/*.tsx",
         "src/**/*.test.ts",
+        "src/**/*.test.tsx",
         "test/**"
       ],
       "outputs": ["**/__snapshots__/**", "**/*.snap"]
+    },
+    "bench": {
+      "dependsOn": ["compile"],
+      "inputs": [
+        "*.ts",
+        "*.js",
+        "*.cjs",
+        "*.json",
+        "*.toml",
+        "*.lock",
+        "src/**/*.rs",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        "test/**"
+      ]
     },
     "test:playwright": {
       "dependsOn": ["compile"],
@@ -73,6 +95,7 @@
         "*.lock",
         "src/**/*.rs",
         "src/**/*.ts",
+        "src/**/*.tsx",
         "test/**"
       ]
     },
@@ -86,6 +109,7 @@
         "*.lock",
         "src/**/*.rs",
         "src/**/*.ts",
+        "src/**/*.tsx",
         "test/**"
       ]
     },
@@ -95,11 +119,18 @@
       "inputs": ["*.md", "LICENSE"]
     },
     "topo": {
+      "inputs": ["**", "!node_modules/**", "!*/**/target/**"],
       "dependsOn": ["^topo"]
     },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "wing:e2e": {
+      "dependsOn": ["hangar#test"]
+    },
+    "wing:bench": {
+      "dependsOn": ["hangar#bench"]
     }
   }
 }

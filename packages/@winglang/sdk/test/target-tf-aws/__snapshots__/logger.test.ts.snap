@@ -1,0 +1,87 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`inflight function uses a logger 1`] = `
+"(await (async () => {
+  const $func = async () => console.log("hello world!")
+  const $ctx = {
+  
+  };
+  let newFunction = async (...args) => {
+    return $func($ctx, ...args);
+  };
+  newFunction.handle = newFunction;
+  return newFunction;
+}
+)())"
+`;
+
+exports[`inflight function uses a logger 2`] = `
+{
+  "resource": {
+    "aws_cloudwatch_log_group": {
+      "Function_CloudwatchLogGroup_ABDCF4C4": {
+        "name": "/aws/lambda/Function-c852aba6",
+        "retention_in_days": 30,
+      },
+    },
+    "aws_iam_role": {
+      "Function_IamRole_678BE84C": {
+        "assume_role_policy": "{"Version":"2012-10-17","Statement":[{"Action":"sts:AssumeRole","Principal":{"Service":"lambda.amazonaws.com"},"Effect":"Allow"}]}",
+      },
+    },
+    "aws_iam_role_policy": {
+      "Function_IamRolePolicy_E3B26607": {
+        "policy": "{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"none:null","Resource":"*"}]}",
+        "role": "\${aws_iam_role.Function_IamRole_678BE84C.name}",
+      },
+    },
+    "aws_iam_role_policy_attachment": {
+      "Function_IamRolePolicyAttachment_CACE1358": {
+        "policy_arn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+        "role": "\${aws_iam_role.Function_IamRole_678BE84C.name}",
+      },
+    },
+    "aws_lambda_function": {
+      "Function": {
+        "architectures": [
+          "arm64",
+        ],
+        "environment": {
+          "variables": {
+            "NODE_OPTIONS": "--enable-source-maps",
+            "WING_FUNCTION_NAME": "Function-c852aba6",
+          },
+        },
+        "function_name": "Function-c852aba6",
+        "handler": "index.handler",
+        "logging_config": {
+          "log_format": "JSON",
+        },
+        "memory_size": 1024,
+        "publish": true,
+        "role": "\${aws_iam_role.Function_IamRole_678BE84C.arn}",
+        "runtime": "nodejs20.x",
+        "s3_bucket": "\${aws_s3_bucket.Code.bucket}",
+        "s3_key": "\${aws_s3_object.Function_S3Object_C62A0C2D.key}",
+        "timeout": 60,
+        "vpc_config": {
+          "security_group_ids": [],
+          "subnet_ids": [],
+        },
+      },
+    },
+    "aws_s3_bucket": {
+      "Code": {
+        "bucket_prefix": "code-c84a50b1-",
+      },
+    },
+    "aws_s3_object": {
+      "Function_S3Object_C62A0C2D": {
+        "bucket": "\${aws_s3_bucket.Code.bucket}",
+        "key": "<key>",
+        "source": "<source>",
+      },
+    },
+  },
+}
+`;

@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "checkJs": true,
-    "module": "CommonJS",
-    "lib": ["ES2020"]
-  },
-  "include": ["grammar.js", "tree-sitter-dsl.d.ts"]
-}
