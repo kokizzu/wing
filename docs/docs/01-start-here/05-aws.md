@@ -7,27 +7,27 @@ keywords: [Wing deploy, Wing deployment, deploy to AWS, deploy using Terraform]
 So far we've tested our program locally using our Wing Console. Next we'll see how you can deploy your
 program to AWS using Terraform.
 
-## Wing compiler supports multiple targets
+## Wing compiler supports multiple platforms
 
-The Wing compiler supports multiple compilation targets. Each resource in the
+The Wing compiler supports multiple compilation platforms. Each resource in the
 Wing ecosystem can support any number of *backends*. For example, the
 `cloud.Queue` resource we used in our app can be backed by [Amazon
 SQS](https://aws.amazon.com/sqs/) by [Azure Queue
 Storage](https://azure.microsoft.com/en-us/products/storage/queues/) or by
 [RabbitMQ by CloudAMQP](https://www.cloudamqp.com/).
 
-A target represents both the cloud provider and the provisioning engine. For
-example, the `tf-aws` target will compile your program to a set of AWS
+A platform represents both the cloud provider and the provisioning engine. For
+example, the `tf-aws` platform will compile your program to a set of AWS
 resources, using Terraform as the provisioning engine.
 
 
 :::info Under Construction
 
-:construction: We plan to also support [Azure](https://github.com/winglang/wing/issues?q=is:issue+is:open+sort:updated-desc+label:azure) and [Google Cloud](https://github.com/winglang/wing/issues?q=is:issue+is:open+sort:updated-desc+label:gcp) as targets out of
+:construction: We plan to also support [Azure](https://github.com/winglang/wing/issues?q=is:issue+is:open+sort:updated-desc+label:%22☁️%20azure%22) and [Google Cloud](https://github.com/winglang/wing/issues?q=is:issue+is:open+sort:updated-desc+label:%22☁️%20gcp%22) as platforms out of
 the box. In addition, we are planning support for other provisioning engines
 such as AWS CloudFormation and Kubernetes.
 
-Click :thumbsup: on the relevant issue and tell us what you think.
+Click 👍 on the relevant issue and tell us what you think.
 
 :::
 
@@ -42,16 +42,16 @@ for more information.
 
 ## Compile to Terraform/AWS
 
-We will use the `tf-aws` target to tell the compiler to bind all of our resources
+We will use the `tf-aws` platform to tell the compiler to bind all of our resources
 to the default set of AWS resources and use Terraform as the provisioning engine.
 
 ```sh
-wing compile --target tf-aws hello.w
+wing compile --platform tf-aws main.w
 ```
 
 ## Examine the output
 
-Our `target` directory now contains a `hello.tfaws` directory which has all of the Terraform configuration for this application.
+Our `target` directory now contains a `main.tfaws` directory which has all of the Terraform configuration for this application.
 
 ## Initialize Terraform state
 
@@ -69,7 +69,7 @@ Let's change the working directory to where our Terraform configuration is and
 initialize the state file:
 
 ```sh
-cd ./target/hello.tfaws
+cd ./target/main.tfaws
 export AWS_REGION=us-east-1 # or any other region
 terraform init
 ```
@@ -147,7 +147,7 @@ through the AWS Management Console.
 
 1. Open the [Amazon SQS Console](https://console.aws.amazon.com/sqs)
 2. Select your AWS region
-3. You should be able to see that you have a queue there prefixed with `cloud-Queue-`
+3. You should be able to see that you have a queue there prefixed with `Queue-`
 4. Click **Send and receive messages**.
 5. In the **Message Body** box type `cloud` and hit **Send message**.
 6. Jump over to the [S3 Console](https://s3.console.aws.amazon.com/s3/buckets) 

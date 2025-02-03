@@ -1,22 +1,14 @@
 {
-  "$schema": "https://turborepo.org/schema.json",
-  "globalDependencies": [
-    "*.json",
-    "*.toml",
-    ".node-version",
-    "insta.yaml",
-    ".github/workflows/build.yml",
-    "scripts/*",
-    "patches/*",
-    "tools/bump-pack/**",
-    "!tools/bump-pack/node_modules/**"
-  ],
-  "pipeline": {
-    "default": {
-      "inputs": ["*.json", ".projenrc.ts"]
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "persistent": true,
+      "cache": false
     },
     "compile": {
-      "dependsOn": ["^compile"],
+      "dependsOn": [
+        "^compile"
+      ],
       "inputs": [
         "bin/*",
         "*.ts",
@@ -27,11 +19,12 @@
         "*.lock",
         "src/**/*.rs",
         "!src/**/*.test.ts",
-        "src/**/*.ts"
+        "!src/**/*.test.tsx",
+        "src/**/*.ts",
+        "src/**/*.tsx"
       ]
     },
-    "test": {
-      "dependsOn": ["compile"],
+    "lint": {
       "inputs": [
         "*.ts",
         "*.js",
@@ -41,13 +34,62 @@
         "*.lock",
         "src/**/*.rs",
         "src/**/*.ts",
+        "src/**/*.tsx",
+        "test/**"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "compile"
+      ],
+      "inputs": [
+        "*.ts",
+        "*.js",
+        "*.cjs",
+        "*.json",
+        "*.toml",
+        "*.lock",
+        "src/**/*.rs",
+        "src/**/*.ts",
+        "src/**/*.tsx",
         "src/**/*.test.ts",
+        "src/**/*.test.tsx",
         "test/**"
       ],
-      "outputs": ["**/__snapshots__/**", "**/*.snap"]
+      "outputs": [
+        "**/__snapshots__/**",
+        "**/*.snap"
+      ]
+    },
+    "default": {
+      "inputs": [
+        "*.json",
+        ".projenrc.ts"
+      ]
+    },
+    "bench": {
+      "dependsOn": [
+        "compile"
+      ],
+      "inputs": [
+        "*.ts",
+        "*.js",
+        "*.cjs",
+        "*.json",
+        "*.toml",
+        "*.lock",
+        "src/**/*.rs",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        "test/**"
+      ]
     },
     "test:playwright": {
-      "dependsOn": ["compile"],
+      "dependsOn": [
+        "compile"
+      ],
       "inputs": [
         "*.ts",
         "*.js",
@@ -60,20 +102,11 @@
       ]
     },
     "post-compile": {
-      "inputs": [""],
-      "dependsOn": ["compile"]
-    },
-    "lint": {
       "inputs": [
-        "*.ts",
-        "*.js",
-        "*.cjs",
-        "*.json",
-        "*.toml",
-        "*.lock",
-        "src/**/*.rs",
-        "src/**/*.ts",
-        "test/**"
+        ""
+      ],
+      "dependsOn": [
+        "compile"
       ]
     },
     "eslint": {
@@ -86,20 +119,53 @@
         "*.lock",
         "src/**/*.rs",
         "src/**/*.ts",
+        "src/**/*.tsx",
         "test/**"
       ]
     },
     "package": {
-      "dependsOn": ["compile", "post-compile"],
-      "env": ["PROJEN_BUMP_VERSION"],
-      "inputs": ["*.md", "LICENSE"]
+      "dependsOn": [
+        "compile",
+        "post-compile"
+      ],
+      "env": [
+        "PROJEN_BUMP_VERSION"
+      ],
+      "inputs": [
+        "*.md",
+        "LICENSE"
+      ]
     },
     "topo": {
-      "dependsOn": ["^topo"]
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!*/**/target/**"
+      ],
+      "dependsOn": [
+        "^topo"
+      ]
     },
-    "dev": {
-      "cache": false,
-      "persistent": true
+    "wing:e2e": {
+      "dependsOn": [
+        "hangar#test"
+      ]
+    },
+    "wing:bench": {
+      "dependsOn": [
+        "hangar#bench"
+      ]
     }
-  }
+  },
+  "globalDependencies": [
+    "*.json",
+    "*.toml",
+    ".node-version",
+    "insta.yaml",
+    ".github/workflows/build.yml",
+    "scripts/*",
+    "patches/*",
+    "tools/bump-pack/**",
+    "!tools/bump-pack/node_modules/**"
+  ]
 }

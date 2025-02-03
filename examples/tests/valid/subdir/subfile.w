@@ -1,3 +1,0 @@
-bring math;
-
-class Q {}

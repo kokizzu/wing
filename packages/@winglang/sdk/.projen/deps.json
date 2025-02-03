@@ -1,0 +1,380 @@
+{
+  "dependencies": [
+    {
+      "name": "@cdktf/provider-aws",
+      "version": "^19",
+      "type": "build"
+    },
+    {
+      "name": "@types/aws-lambda",
+      "type": "build"
+    },
+    {
+      "name": "@types/express",
+      "type": "build"
+    },
+    {
+      "name": "@types/fs-extra",
+      "type": "build"
+    },
+    {
+      "name": "@types/glob",
+      "type": "build"
+    },
+    {
+      "name": "@types/mime-types",
+      "type": "build"
+    },
+    {
+      "name": "@types/node",
+      "version": "^20",
+      "type": "build"
+    },
+    {
+      "name": "@types/uuid",
+      "type": "build"
+    },
+    {
+      "name": "@typescript-eslint/eslint-plugin",
+      "version": "^7",
+      "type": "build"
+    },
+    {
+      "name": "@typescript-eslint/parser",
+      "version": "^7",
+      "type": "build"
+    },
+    {
+      "name": "@winglang/jsii-docgen",
+      "type": "build"
+    },
+    {
+      "name": "aws-sdk-client-mock-jest",
+      "version": "3.0.0",
+      "type": "build"
+    },
+    {
+      "name": "aws-sdk-client-mock",
+      "version": "3.0.0",
+      "type": "build"
+    },
+    {
+      "name": "bump-pack",
+      "type": "build"
+    },
+    {
+      "name": "cdktf-cli",
+      "version": "0.20.7",
+      "type": "build"
+    },
+    {
+      "name": "chalk",
+      "type": "build"
+    },
+    {
+      "name": "constructs",
+      "version": "^10.3",
+      "type": "build"
+    },
+    {
+      "name": "eslint-config-prettier",
+      "type": "build"
+    },
+    {
+      "name": "eslint-import-resolver-node",
+      "type": "build"
+    },
+    {
+      "name": "eslint-import-resolver-typescript",
+      "type": "build"
+    },
+    {
+      "name": "eslint-plugin-import",
+      "type": "build"
+    },
+    {
+      "name": "eslint-plugin-prettier",
+      "type": "build"
+    },
+    {
+      "name": "eslint-plugin-sort-exports",
+      "type": "build"
+    },
+    {
+      "name": "eslint",
+      "version": "^8.56.0",
+      "type": "build"
+    },
+    {
+      "name": "fs-extra",
+      "type": "build"
+    },
+    {
+      "name": "jsii-diff",
+      "type": "build"
+    },
+    {
+      "name": "jsii-pacmak",
+      "type": "build"
+    },
+    {
+      "name": "jsii",
+      "version": "~5.5.4",
+      "type": "build"
+    },
+    {
+      "name": "mock-gcs",
+      "version": "^1.2.0",
+      "type": "build"
+    },
+    {
+      "name": "nanoid",
+      "type": "build"
+    },
+    {
+      "name": "prettier",
+      "type": "build"
+    },
+    {
+      "name": "projen",
+      "type": "build"
+    },
+    {
+      "name": "standard-version",
+      "version": "^9",
+      "type": "build"
+    },
+    {
+      "name": "ts-morph",
+      "version": "^23.0.0",
+      "type": "build"
+    },
+    {
+      "name": "tsx",
+      "type": "build"
+    },
+    {
+      "name": "typescript",
+      "type": "build"
+    },
+    {
+      "name": "vitest",
+      "type": "build"
+    },
+    {
+      "name": "wing-api-checker",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-cloudwatch-logs",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-dynamodb",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-ecs",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-elasticache",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-lambda",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-sns",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/client-sqs",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/s3-request-presigner",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/types",
+      "type": "bundled"
+    },
+    {
+      "name": "@aws-sdk/util-dynamodb",
+      "version": "3.577.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@azure/core-paging",
+      "type": "bundled"
+    },
+    {
+      "name": "@azure/data-tables",
+      "version": "13.2.2",
+      "type": "bundled"
+    },
+    {
+      "name": "@azure/identity",
+      "version": "4.3.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@azure/storage-blob",
+      "version": "12.14.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@google-cloud/datastore",
+      "version": "8.4.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@google-cloud/storage",
+      "version": "6.9.5",
+      "type": "bundled"
+    },
+    {
+      "name": "@smithy/util-stream",
+      "version": "2.0.17",
+      "type": "bundled"
+    },
+    {
+      "name": "@smithy/util-utf8",
+      "version": "2.0.0",
+      "type": "bundled"
+    },
+    {
+      "name": "@types/aws-lambda",
+      "type": "bundled"
+    },
+    {
+      "name": "@winglang/wingtunnels",
+      "version": "workspace:^",
+      "type": "bundled"
+    },
+    {
+      "name": "ajv",
+      "type": "bundled"
+    },
+    {
+      "name": "cdktf",
+      "version": "0.20.7",
+      "type": "bundled"
+    },
+    {
+      "name": "cron-parser",
+      "type": "bundled"
+    },
+    {
+      "name": "cron-validator",
+      "type": "bundled"
+    },
+    {
+      "name": "dotenv",
+      "type": "bundled"
+    },
+    {
+      "name": "dotenv-expand",
+      "type": "bundled"
+    },
+    {
+      "name": "express",
+      "type": "bundled"
+    },
+    {
+      "name": "glob",
+      "type": "bundled"
+    },
+    {
+      "name": "google-auth-library",
+      "type": "bundled"
+    },
+    {
+      "name": "jiti",
+      "type": "bundled"
+    },
+    {
+      "name": "mime-types",
+      "type": "bundled"
+    },
+    {
+      "name": "mime",
+      "version": "^3.0.0",
+      "type": "bundled"
+    },
+    {
+      "name": "nanoid",
+      "version": "^3.3.7",
+      "type": "bundled"
+    },
+    {
+      "name": "protobufjs",
+      "version": "7.2.5",
+      "type": "bundled"
+    },
+    {
+      "name": "safe-stable-stringify",
+      "type": "bundled"
+    },
+    {
+      "name": "stacktracey",
+      "type": "bundled"
+    },
+    {
+      "name": "toml",
+      "type": "bundled"
+    },
+    {
+      "name": "ulid",
+      "type": "bundled"
+    },
+    {
+      "name": "uuid",
+      "type": "bundled"
+    },
+    {
+      "name": "vlq",
+      "type": "bundled"
+    },
+    {
+      "name": "yaml",
+      "type": "bundled"
+    },
+    {
+      "name": "@types/node",
+      "version": "^20.11.0",
+      "type": "devenv"
+    },
+    {
+      "name": "constructs",
+      "version": "^10.3",
+      "type": "peer"
+    },
+    {
+      "name": "constructs",
+      "version": "^10.3",
+      "type": "runtime"
+    }
+  ],
+  "//": "~~ Generated by projen. To modify, edit .projenrc.ts and run \"npx projen\"."
+}

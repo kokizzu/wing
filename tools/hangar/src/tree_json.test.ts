@@ -5,20 +5,24 @@ import { validTestDir } from "./paths";
 import { runWingCommand } from "./utils";
 
 test("tree.json for an app with many resources", async () => {
-  const app = "resource.w";
+  const app = "resource.test.w";
   const appFile = path.join(validTestDir, app);
-  const args = ["compile", "--target", "tf-aws"];
-  const targetDir = path.join(validTestDir, "target", "resource.tfaws");
+  const platforms = ["tf-aws"];
+  const args = ["compile"];
+  const targetDir = path.join(validTestDir, "target", "resource.test.tfaws");
 
   await runWingCommand({
     cwd: validTestDir,
     wingFile: appFile,
+    platforms,
     args,
     expectFailure: false,
   });
 
   const treeJson = JSON.parse(
-    await fs.readFile(path.join(targetDir, "tree.json"), "utf-8")
+    await fs.readFile(path.join(targetDir, "tree.json"), "utf-8"),
+    // reviver to remove any "version" fields
+    function (key, value){ return (key === "version" && ("fqn" in (this ?? {})) ? "0.0.0" : value)}
   );
   expect(treeJson).toMatchSnapshot();
 });

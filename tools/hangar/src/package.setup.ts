@@ -19,6 +19,15 @@ const shellEnv = {
 };
 
 const getInstallArgs = async () => {
+  if (process.env.HANGAR_WINGLANG_PACKAGE) {
+    return [
+      "install",
+      "--no-package-lock",
+      "--install-links=false",
+      process.env.HANGAR_WINGLANG_PACKAGE!,
+    ];
+  }
+
   if (process.env.CI) {
     const tarballsDir = path.resolve(`${__dirname}/../../../dist`);
     const tarballs = (await fs.readdir(tarballsDir))
@@ -36,8 +45,11 @@ const getInstallArgs = async () => {
     "install",
     "--no-package-lock",
     "--install-links=false",
-    "file:../../../apps/wing",
-    "file:../../../libs/wingsdk",
+    "file:../../../packages/winglang",
+    "file:../../../packages/@winglang/sdk",
+    "file:../../../packages/@winglang/platform-awscdk",
+    "file:../../../packages/@winglang/compatibility-spy",
+    "file:../../../packages/@wingcloud/framework",
   ];
 };
 
@@ -58,19 +70,23 @@ export default async function () {
     cwd: tmpDir,
   });
 
-  const allowedInstallHooks: RegExp[] = []; // Leaving this mechanism in place in case we need it in the future
-
   const installHooks =
-    installResult.stdout.match(/>.*/g)?.filter((hook) => {
-      return !allowedInstallHooks.some((allowedHook) => {
-        return allowedHook.test(hook);
-      });
-    }) ?? [];
+    installResult.stdout
+      .match(/^> .+ \w+$/g)
+      ?.map((line) => line.toString().trim()) ?? [];
+
+  // trusted install hooks we are expecting to expose to users
+  const allowedInstallHooks = ["> esbuild@0.19.12 postinstall"];
+  const badInstallHooks = installHooks.filter(
+    (hook) => !allowedInstallHooks.includes(hook)
+  );
 
   assert.equal(
-    installHooks.length,
+    badInstallHooks.length,
     0,
-    `Install contains unexpected script hooks: \n${installHooks}`
+    `Install contains unexpected script hooks: \n${badInstallHooks
+      .map((h) => `"${h}"`)
+      .join("\n")}`
   );
   assert.equal(
     installResult.exitCode,

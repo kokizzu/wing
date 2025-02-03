@@ -1,0 +1,26 @@
+name: PR Creation Comment
+
+on:
+  pull_request_target:
+    types:
+      - opened
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-24.04
+    if: ${{ !startsWith(github.head_ref, 'mergify/merge-queue/') }}
+    steps:
+      - name: Comment on new PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Thanks for opening this pull request! :tada:
+            Please consult the [contributing guidelines](https://www.winglang.io/contributing) for details on how to contribute to this project.
+            If you need any assistance, don't hesitate to ping use over [Discord](https://t.winglang.io/discord).
+
+          comment_tag: New PR
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

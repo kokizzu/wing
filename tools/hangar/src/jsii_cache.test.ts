@@ -7,9 +7,10 @@ import { runWingCommand } from "./utils";
 test("JSII manifest cache", async () => {
   // Use awscdk test because it has manifest file redirects and uses gzip compression which is a good test case
   // in addtion to regular manifest files
-  const app = "bring_awscdk.w";
+  const app = "bring_awscdk.test.w";
   const appFile = path.join(validTestDir, app);
-  const args = ["compile", "--target", "sim"];
+  const platforms = ["sim"];
+  const args = ["compile"];
   const manifestCacheExt = ".jsii.speedy";
 
   const awscdkLibDir = path.join(validTestDir, "node_modules", "aws-cdk-lib");
@@ -27,13 +28,19 @@ test("JSII manifest cache", async () => {
     await runWingCommand({
       cwd: validTestDir,
       wingFile: appFile,
+      platforms,
       args,
       expectFailure: false,
     });
 
     // Make sure the manifest cache file was generated
-    let files = (await fs.readdir(module_dir)).filter((file) => file.endsWith(manifestCacheExt));
-    assert(files.length === 1, `Expected 1 manifest cache file in ${module_dir}, found ${files.length}: ${files}`);
+    let files = (await fs.readdir(module_dir)).filter((file) =>
+      file.endsWith(manifestCacheExt)
+    );
+    assert(
+      files.length === 1,
+      `Expected 1 manifest cache file in ${module_dir}, found ${files.length}: ${files}`
+    );
     let cache_file = files[0];
     let stat = await fs.stat(path.join(module_dir, cache_file));
     assert(stat.size > 0);
